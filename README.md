@@ -1,0 +1,2 @@
+# Modeling-Clinical-Diagnosis-Trajectories-from-EHR-Data-Using-Deep-Reinforcement-Learning
+Learning diagnostic pathways from electronic health records using deep reinforcement learning. The approach models patient journeys as sequential decision processes, capturing temporal relationships between symptoms, tests, and diagnoses to reveal clinically meaningful diagnostic trajectories and support data-driven decision analysis.
