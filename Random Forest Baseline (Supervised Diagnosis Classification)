@@ -1,0 +1,86 @@
+# --------------------------------------------------
+# Imports
+# --------------------------------------------------
+import numpy as np
+import pandas as pd
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+    roc_auc_score,
+)
+
+# --------------------------------------------------
+# Configuration
+# --------------------------------------------------
+TRAIN_PATH = "data/train_set_basic.csv"
+TEST_PATH = "data/test_set_constant.csv"
+
+FEATURE_COLUMNS = [
+    "hemoglobin", "ferritin", "ret_count", "segmented_neutrophils", "tibc",
+    "mcv", "serum_iron", "rbc", "gender", "creatinine", "cholestrol",
+    "copper", "ethanol", "folate", "glucose", "hematocrit", "tsat",
+]
+
+TARGET_COLUMN = "label"
+N_ESTIMATORS = 100
+RANDOM_SEED = 42
+
+# --------------------------------------------------
+# Load Data
+# --------------------------------------------------
+train_df = pd.read_csv(TRAIN_PATH)
+test_df = pd.read_csv(TEST_PATH)
+
+print("Train Data Columns:", train_df.columns)
+print("Test Data Columns:", test_df.columns)
+
+missing_features = [f for f in FEATURE_COLUMNS if f not in train_df.columns]
+if missing_features:
+    raise ValueError(f"Missing feature columns: {missing_features}")
+
+# --------------------------------------------------
+# Prepare Datasets
+# --------------------------------------------------
+X_train = train_df[FEATURE_COLUMNS]
+y_train = train_df[TARGET_COLUMN]
+
+X_test = test_df[FEATURE_COLUMNS]
+y_test = test_df[TARGET_COLUMN]
+
+# --------------------------------------------------
+# Model Definition
+# --------------------------------------------------
+model = RandomForestClassifier(
+    n_estimators=N_ESTIMATORS,
+    random_state=RANDOM_SEED,
+    n_jobs=-1,
+)
+
+# --------------------------------------------------
+# Training
+# --------------------------------------------------
+model.fit(X_train, y_train)
+
+# --------------------------------------------------
+# Evaluation
+# --------------------------------------------------
+y_pred = model.predict(X_test)
+y_pred_proba = model.predict_proba(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred, average="weighted")
+roc_auc = roc_auc_score(y_test, y_pred_proba, multi_class="ovr")
+
+print(f"\nAccuracy: {accuracy:.4f}")
+print(f"F1 Score: {f1:.4f}")
+print(f"ROC AUC Score: {roc_auc:.6f}")
+
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred))
+
+print("\nConfusion Matrix:\n")
+print(confusion_matrix(y_test, y_pred))
